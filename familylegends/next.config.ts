@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'storage.googleapis.com' },
       { protocol: 'https', hostname: 'img.icons8.com' },
-      { protocol: 'https', hostname: 'i.suar.me' },
       { protocol: 'https', hostname: 'images.igdb.com' },
       { protocol: 'https', hostname: 'api.dicebear.com' },
       { protocol: 'https', hostname: 'cdn.discordapp.com' },

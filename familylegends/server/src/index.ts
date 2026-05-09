@@ -7,12 +7,20 @@ import mongoose from 'mongoose';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import winston from 'winston';
+import fs from 'fs';
+import path from 'path';
 
 import { setupSocketIO } from './services/socket.service';
 import { errorHandler } from './middleware/error.middleware';
 import { rateLimiter } from './middleware/rateLimit.middleware';
 
 dotenv.config();
+
+// Ensure logs directory exists before creating logger
+const logsDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
