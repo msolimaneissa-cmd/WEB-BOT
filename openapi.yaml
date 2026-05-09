@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  title: Family Legends Ecosystem API
+  version: 1.0.0
+  description: >
+    Official OpenAPI documentation for the internal communication and public API routes
+    between the Discord Bot (Node.js) and the Web Dashboard (Next.js App Router).
+servers:
+  - url: https://dashboard.familylegends.com
+    description: Production Dashboard Servers
+  - url: http://localhost:3000
+    description: Local Dashboard Server
+  - url: http://localhost:8080
+    description: Discord Bot Internal API Server
+
+components:
+  securitySchemes:
+    BotSecret:
+      type: apiKey
+      in: header
+      name: x-bot-secret
+      description: Secure token used strictly for internal microservice communication
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token auth for external webhook integrations
+
+paths:
+  /control:
+    post:
+      summary: Discord Bot Control Endpoint
+      description: This endpoint runs on the discord-bot server and receives secure commands from the Dashboard.
+      security:
+        - BotSecret: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [CONFIG_UPDATE, SHUTDOWN]
+                  description: The action for the bot to take
+                guildId:
+                  type: string
+                  description: The Discord Guild ID
+              required:
+                - type
+                - guildId
+      responses:
+        '200':
+          description: Command successfully processed
+        '401':
+          description: Unauthorized - Invalid x-bot-secret
+        '400':
+          description: Bad Request - Missing required payload fields
+
+  /api/bot/sync:
+    post:
+      summary: Dashboard Bot Sync Endpoint
+      description: This endpoint triggers the bot to download the latest firestore configurations. Used by admins from the dashboard.
+      responses:
+        '200':
+          description: Sync signal successfully sent to bot.
+        '401':
+          description: Unauthorized (Admin session required)
+        '429':
+          description: Rate limited (Max 60 requests per minute)
+
+  /api/webhooks/discord:
+    post:
+      summary: Outbound Webhook Receiver
+      description: The endpoint on the dashboard to receive Discord bot stats, stream starts, and stream end events.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum: [stream_start, stream_end, server_stats, activity]
+                data:
+                  type: object
+              required:
+                - event
+      responses:
+        '200':
+          description: Webhook payload captured
+        '400':
+          description: Invalid payload structure
