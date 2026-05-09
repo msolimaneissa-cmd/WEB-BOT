@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: fl-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: familylegends
+
+  redis:
+    image: redis:7-alpine
+    container_name: fl-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  bot:
+    build:
+      context: ./discord-bot
+      dockerfile: Dockerfile
+    container_name: fl-bot
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - ./discord-bot/.env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/familylegends
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3001:3001"
+
+volumes:
+  mongodb_data:
+  redis_data:

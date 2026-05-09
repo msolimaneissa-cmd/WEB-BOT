@@ -21,7 +21,7 @@
 "dependencies": discord.js@14, DisTube@5 (موسيقى YT/Spotify), Mongoose@8 (MongoDB), 
 Google Generative AI, Canvas (صور), Redis, Socket.io, Express
 ```
-**الأوامر**: `npm start/dev/deploy/test/lint` (Node >=18)
+**الأوامر**: `npm start/dev/deploy/test/lint` (Node >=22)
 
 ### 📖 README.md (ملخص)
 بوت إدارة سيرفر كامل مجاني مفتوح المصدر. **نشر على Render.com** مع UptimeRobot لـ24/7.
