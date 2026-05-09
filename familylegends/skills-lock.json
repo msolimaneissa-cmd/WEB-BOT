@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "firebase": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "d4e35c1d63dd3cb417d7cfb14ccda6ce1e6ccf083186639aef8c0f38ef9de07e"
+    },
+    "react-nextjs": {
+      "source": "maroffo/claude-forge",
+      "sourceType": "github",
+      "computedHash": "202b2506e79be0364ab2f37842871022f597754a2a85448c1923bf00ca8590f5"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "43ca6c197f8ec13055079da7053232d477068b03ca443f9ac1bc819b95cdd432"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    }
+  }
+}

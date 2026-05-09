@@ -1,0 +1,79 @@
+# ═══════════════════════════════════════════════════════════════════
+# 🚀 Render Blueprint - Family Legends Discord Bot
+# ═══════════════════════════════════════════════════════════════════
+# هذا الملف يحدد إعدادات النشر على Render
+# لمزيد من المعلومات: https://render.com/docs/blueprint-spec
+
+services:
+  # ═════════════════════════════════════════════════════════════════
+  # 🤖 Discord Bot Service (Web type for Keep-Alive)
+  # ═════════════════════════════════════════════════════════════════
+  # استخدام نوع "web" بدلاً من "worker" لتفعيل خادم Express
+  # هذا يسمح لـ UptimeRobot بمراقبة البوت عبر /health
+  - type: web
+    name: family-legends-bot
+    runtime: node
+    buildCommand: npm ci --only=production --ignore-scripts || npm install --production --ignore-scripts
+    startCommand: npm start
+    
+    # خطة مجانية مع إمكانية الترقية
+    plan: free
+    
+    # إعدادات البناء
+    numInstances: 1
+    
+    # المتغيرات البيئية المطلوبة
+    envVars:
+      # متغيرات إلزامية (يجب تعبئتها يدوياً في Render Dashboard)
+      - key: DISCORD_TOKEN
+        sync: false
+        description: "رمز البوت من Discord Developer Portal"
+        
+      - key: CLIENT_ID
+        sync: false
+        description: "معرف التطبيق من Discord Developer Portal"
+        
+      - key: BOT_CONTROL_SECRET
+        sync: false
+        description: "سر التحكم من لوحة القيادة (إلزامي للأمان)"
+
+      # متغيرات اختيارية
+      - key: MONGODB_URI
+        sync: false
+        description: "رابط قاعدة بيانات MongoDB (اختياري)"
+        
+      - key: GUILD_ID
+        sync: false
+        description: "معرف السيرفر لتسجيل الأوامر محلياً (اختياري)"
+        
+      - key: BOT_STATUS
+        value: "إدارة السيرفر"
+        description: "حالة البوت المعروضة"
+        
+      - key: BOT_ACTIVITY_TYPE
+        value: "PLAYING"
+        description: "نوع النشاط (PLAYING, WATCHING, LISTENING, COMPETING)"
+        
+      - key: NODE_ENV
+        value: "production"
+        description: "بيئة التشغيل"
+        
+      - key: PORT
+        value: "3001"
+        description: "منفذ خادم Keep-Alive (يجب أن يطابق الكود)"
+
+    # إعدادات الصحة
+    healthCheckPath: /health
+    
+    # إعادة التشغيل التلقائي عند الفشل
+    autoDeploy: true
+
+# ═══════════════════════════════════════════════════════════════════
+# 📝 تعليمات النشر
+# ═══════════════════════════════════════════════════════════════════
+# 1. اربط مستودع GitHub الخاص بك مع Render
+# 2. أنشئ ملف .env في Render Dashboard مع المتغيرات المطلوبة
+# 3. سيتم نشر البوت تلقائياً
+# 4. استخدم UptimeRobot للحفاظ على البوت حياً:
+#    - URL: https://your-app.onrender.com/health
+#    - Interval: 5 minutes

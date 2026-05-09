@@ -1,0 +1,157 @@
+{
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "username": "Username",
+    "guild": "Server",
+    "confirmLogout": "Are you sure you want to logout?",
+    "addNew": "Add New",
+    "confirm": "Confirm"
+  },
+  "Navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "stats": "Stats",
+    "rules": "Rules",
+    "team": "Team",
+    "partners": "Partners",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "Landing": {
+    "hero": {
+      "badge": "The Ultimate Gaming Community",
+      "welcome": "Welcome to",
+      "title": "Family Legends",
+      "description": "Your favorite community for the mightiest legends in the gaming world. Join us now and experience an unparalleled gaming journey with the best Arab players.",
+      "cta": "Enter the World of Legends",
+      "learnMore": "Learn About Us",
+      "scrollDown": "Scroll Down"
+    },
+    "stats": {
+      "title": "Community Stats",
+      "members": "Members",
+      "online": "Online",
+      "boosts": "Boosts"
+    },
+    "rules": {
+      "title": "Covenant Engravings",
+      "subtitle": "To ensure a fun and fair experience for all, please adhere to the sacred engravings that rule our world.",
+      "sectionTitle": "Code of",
+      "sectionTitleHighlight": "Legends",
+      "sectionSubtitle": "To ensure a fun and fair experience for all, please adhere to the sacred engravings that govern our world and oversee the order of our legendary community.",
+      "emptyTitle": "Our Records Are Empty",
+      "emptyDescription": "The sacred laws will be inscribed here soon."
+    },
+    "team": {
+      "title": "Leaders of Legends",
+      "subtitle": "Meet the masterminds and heroes who dedicate their time to building and developing our legendary community to deliver the best possible experience.",
+      "empty": "Leaders will be added soon"
+    },
+    "partners": {
+      "title": "Alliance",
+      "titleHighlight": "Records",
+      "subtitle": "Discover servers and communities that share our vision and adventure in the gaming world.",
+      "cardTitle": "Request Alliance",
+      "cardDescription": "Join the Family Legends and earn a place among the best Arabic servers. Get free promotion and mutual support.",
+      "emptyTitle": "No Partners Yet",
+      "emptyDescription": "Be the first to join the legends' records! Send an alliance request for your server now.",
+      "stream": "Stream",
+      "join": "Join"
+    },
+    "streamers": {
+      "title": "Streaming Legends",
+      "subtitle": "An elite group of content creators who share moments of glory and adventure in the gaming world with us.",
+      "watchChannel": "Watch Channel",
+      "empty": "Creators will be added soon.",
+      "platformTwitch": "Twitch",
+      "platformKick": "Kick",
+      "platformTikTok": "TikTok",
+      "platformYoutube": "YouTube"
+    },
+    "cta": {
+      "heading": "What are you waiting for? Join",
+      "highlight": "the Legends",
+      "description": "Be part of the legends community and discover a world of adventures, challenges, and friends waiting for you every moment. Join the largest Arab gaming community now!",
+      "discord": "Join Discord",
+      "backToTop": "Back to Top",
+      "featureActiveCommunity": "Active Community",
+      "featureActiveDesc": "Daily active members",
+      "featureSupport": "24/7 Support",
+      "featureSupportDesc": "Continuous support team",
+      "featureEvents": "Weekly Events",
+      "featureEventsDesc": "Tournaments and challenges",
+      "featurePrizes": "Valuable Prizes",
+      "featurePrizesDesc": "Exclusive ranks and rewards"
+    }
+  },
+  "Admin": {
+    "pageTitle": {
+      "home": "Home",
+      "botStatus": "Bot Status",
+      "serverSettings": "Server Settings",
+      "leaderboard": "Leaderboard",
+      "dashboard": "Dashboard"
+    },
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "bot": "Bot",
+      "serverSettings": "Server Settings",
+      "leaderboard": "Leaderboard"
+    },
+    "user": {
+      "defaultName": "Admin",
+      "systemAdmin": "System Admin",
+      "adminPanel": "Admin Panel"
+    },
+    "nav": {
+      "mainSite": "Main Site",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "dialogs": {
+      "addEditPartner": "Add / Edit Partner",
+      "addEditTeamMember": "Add / Edit Team Member",
+      "addEditStreamer": "Add / Edit Streamer",
+      "addEditRule": "Add / Edit Rule",
+      "addEditAudioTrack": "Add / Edit Audio Track",
+      "addEditFile": "Add / Edit File",
+      "deleteTitle": "Are you sure you want to delete?",
+      "deleteDescription": "This action cannot be undone and the data will be permanently deleted from the database.",
+      "confirmDelete": "Confirm Delete"
+    },
+    "tabs": {
+      "settings": "Settings",
+      "partners": "Partners",
+      "rules": "Rules",
+      "team": "Team",
+      "streamers": "Streamers",
+      "audioTracks": "Audio Tracks",
+      "files": "Files"
+    }
+  },
+  "Dashboard": {
+    "title": "Control Panel",
+    "guilds": "Your Servers",
+    "overview": "Overview",
+    "settings": "Settings",
+    "moderation": "Moderation",
+    "economy": "Economy",
+    "leveling": "Leveling",
+    "protection": "Protection",
+    "welcome": "Welcome",
+    "autoResponder": "Auto Responder",
+    "notifications": "Notifications",
+    "tickets": "Tickets",
+    "giveaways": "Giveaways",
+    "reactionRoles": "Reaction Roles"
+  }
+}

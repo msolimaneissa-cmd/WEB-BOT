@@ -1,0 +1,177 @@
+{
+  "entities": {
+    "Game": {
+      "title": "Game",
+      "type": "object",
+      "description": "Represents a game played by the community.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the game."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the game's cover art or logo.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "name",
+        "imageUrl"
+      ]
+    },
+    "Partner": {
+      "title": "Partner",
+      "type": "object",
+      "description": "Represents a partner or ally of the gaming community.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the partner community or organization."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the partner."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL of the partner's logo.",
+          "format": "uri"
+        },
+        "inviteUrl": {
+          "type": "string",
+          "description": "The invite URL for the partner's community (e.g., Discord link).",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "logoUrl",
+        "inviteUrl"
+      ]
+    },
+    "File": {
+      "title": "File",
+      "type": "object",
+      "description": "Represents a file or downloadable resource.",
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "The name of the file."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "URL of the file.",
+          "format": "uri"
+        },
+        "iconClass": {
+          "type": "string",
+          "description": "Name of the lucide-react icon for the file type."
+        }
+      },
+      "required": [
+        "fileName",
+        "fileUrl",
+        "iconClass"
+      ]
+    },
+    "AudioTrack": {
+      "title": "AudioTrack",
+      "type": "object",
+      "description": "Represents an audio track, which can be music or a Quran recitation.",
+      "properties": {
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "type": { "type": "string", "enum": ["music", "quran"] },
+        "artist": { "type": "string", "description": "Name of the artist or Sheikh." }
+      },
+      "required": ["title", "url", "type"]
+    },
+     "Rule": {
+      "title": "Rule",
+      "type": "object",
+      "description": "A community rule.",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["title", "description"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "type": "object",
+      "description": "A team member.",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" }
+      },
+      "required": ["name", "role", "imageUrl"]
+    },
+    "Streamer": {
+      "title": "Streamer",
+      "type": "object",
+      "description": "A community streamer.",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "channelLink": { "type": "string", "format": "uri" }
+      },
+      "required": ["name", "role",imageUrl", "channelLink"]
+    },
+     "CommunitySettings": {
+      "title": "CommunitySettings",
+      "type": "object",
+      "description": "General settings for the community website.",
+      "properties": {
+        "name": { "type": "string" },
+        "logoUrl": { "type": "string", "format": "uri" },
+        "discordInviteLink": { "type": "string", "format": "uri" },
+        "copyright": { "type": "string" },
+        "audioMode": { "type": "string", "enum": ["music", "quran"] }
+      },
+      "required": ["name", "logoUrl", "discordInviteLink", "copyright"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password"
+    ]
+  },
+  "firestore": {
+    "/games/{gameId}": {
+      "schema": { "$ref": "#/entities/Game" },
+      "description": "Stores information about games played by the community."
+    },
+    "/partners/{partnerId}": {
+      "schema": { "$ref": "#/entities/Partner" },
+      "description": "Stores information about community partners."
+    },
+    "/files/{fileId}": {
+      "schema": { "$ref": "#/entities/File" },
+      "description": "Stores information about downloadable files."
+    },
+    "/audioTracks/{trackId}": {
+      "schema": { "$ref": "#/entities/AudioTrack" },
+      "description": "Stores audio tracks for the site-wide player."
+    },
+     "/rules/{ruleId}": {
+      "schema": { "$ref": "#/entities/Rule" },
+      "description": "Stores community rules."
+    },
+    "/team/{memberId}": {
+      "schema": { "$ref": "#/entities/TeamMember" },
+      "description": "Stores team member information."
+    },
+    "/streamers/{streamerId}": {
+      "schema": { "$ref": "#/entities/Streamer" },
+      "description": "Stores streamer information."
+    },
+     "/settings/community": {
+      "schema": { "$ref": "#/entities/CommunitySettings" },
+      "description": "Stores global community settings. Only one document 'community' exists."
+    }
+  }
+}

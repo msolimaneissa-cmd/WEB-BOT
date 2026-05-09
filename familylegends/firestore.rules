@@ -1,0 +1,49 @@
+/**
+ * @fileoverview Firestore Security Rules for FamilyLegends.
+ * - Public collections: readable by anyone (needed for the main website pages)
+ * - All writes: require Firebase Auth with admin custom claim
+ * - Settings: community doc publicly readable; all other docs admin-only
+ * - Write size limited to 1 MiB to prevent abuse
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Public collections — readable by anyone for the website,
+     * but only writable by authenticated admins.
+     *
+     * Collections: partners, files, rules, team, streamers, games, audioTracks
+     * - Read: anyone
+     * - Write: authenticated user with admin custom claim only
+     * - Size limit: max 1 MiB per document to prevent abuse
+     */
+    match /{collection}/{docId} {
+      allow read: if collection in ['partners', 'files', 'rules', 'team', 'streamers', 'games', 'audioTracks'];
+      allow create, update, delete: if collection in ['partners', 'files', 'rules', 'team', 'streamers', 'games', 'audioTracks']
+        && request.auth != null
+        && request.auth.token.admin == true
+        && request.resource.size < 1 * 1024 * 1024;
+    }
+
+    /**
+     * @description Settings collection — only authenticated admins can read/write.
+     * The 'community' document is publicly readable for the landing page.
+     * All other documents (e.g., bot-config) are admin-only for both read and write.
+     */
+    match /settings/{docId} {
+      allow read: if docId == 'community';
+      allow read, write: if request.auth != null
+        && request.auth.token.admin == true
+        && request.resource.size < 1 * 1024 * 1024;
+    }
+
+    /**
+     * @description Fallback deny-all for any unmatched collections.
+     * Firestore defaults to deny, but this makes the intent explicit.
+     */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

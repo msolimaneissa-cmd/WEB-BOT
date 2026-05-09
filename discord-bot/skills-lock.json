@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "discord-bot": {
+      "source": "claude-office-skills/skills",
+      "sourceType": "github",
+      "computedHash": "692511fcf42a4939ab5aa0d08b2a3de81d230721c58ee85d4ab20ada1962cdef"
+    },
+    "discord-bot-architect": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "04d589eb8ad2b176bfc1add171629945acc5e5ede39159a1bc3512f181d47b1d"
+    }
+  }
+}

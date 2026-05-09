@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "MongoDB": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-mongo-server",
+        "mongodb://sam_eg_ms:wpBcjaPfCs9JqcOi@ac-xr15qen-shard-00-00.wdkpsj4.mongodb.net:27017,ac-xr15qen-shard-00-01.wdkpsj4.mongodb.net:27017,ac-xr15qen-shard-00-02.wdkpsj4.mongodb.net:27017/?ssl=true&replicaSet=atlas-jguho6-shard-0&authSource=admin&retryWrites=true&w=majority&appName=FLtea"
+      ]
+    }
+  }
+}
