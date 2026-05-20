@@ -1,4 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium, request } from '@playwright/test';
+
+const WEB_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:9002';
+const BOT_URL = process.env.BOT_INTERNAL_URL || 'http://localhost:3001';
+
+// Skip all tests if server is not available
+test.beforeAll(async () => {
+  const context = await chromium.requestBrowser({ baseURL: WEB_URL });
+  try {
+    const response = await request.newRequest({ url: WEB_URL, method: 'GET' });
+    if (!response.ok && response.status() !== 404) {
+      console.log(`⚠️ Web server not available at ${WEB_URL}`);
+    }
+  } catch (e) {
+    console.log(`⚠️ Web server connection failed: ${e.message}`);
+  }
+});
 
 test.describe('Admin Dashboard', () => {
   test('unauthorized users see login prompt', async ({ page }) => {

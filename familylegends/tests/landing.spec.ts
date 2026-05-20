@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Landing Page', () => {
   test('page loads without errors', async ({ page }) => {
-    // Listen for console errors
     const errors: string[] = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -33,7 +32,6 @@ test.describe('Landing Page', () => {
     const rulesNav = page.locator('nav button', { hasText: /القوانين|rules/i }).first();
     if (await rulesNav.isVisible()) {
       await rulesNav.click();
-      // Wait for scroll animation
       await page.waitForTimeout(500);
     }
   });
