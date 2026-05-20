@@ -1,17 +1,19 @@
 openapi: 3.0.0
 info:
   title: Family Legends Ecosystem API
-  version: 1.0.0
+  version: 2.0.0
   description: >
-    Official OpenAPI documentation for the internal communication and public API routes
-    between the Discord Bot (Node.js) and the Web Dashboard (Next.js App Router).
+    Official OpenAPI documentation for all internal and public API routes
+    of the Family Legends Discord Bot (Node.js) and Web Dashboard (Next.js App Router).
+    Last updated: 2026-05-10
+
 servers:
   - url: https://dashboard.familylegends.com
-    description: Production Dashboard Servers
+    description: Production Dashboard
   - url: http://localhost:3000
-    description: Local Dashboard Server
+    description: Local Dashboard
   - url: http://localhost:8080
-    description: Discord Bot Internal API Server
+    description: Discord Bot Internal Server
 
 components:
   securitySchemes:
@@ -19,62 +21,459 @@ components:
       type: apiKey
       in: header
       name: x-bot-secret
-      description: Secure token used strictly for internal microservice communication
-    BearerAuth:
-      type: http
-      scheme: bearer
-      description: Bearer token auth for external webhook integrations
+      description: Shared secret for bot↔dashboard microservice communication
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: NextAuth.js admin session cookie
+
+  schemas:
+    GuildSettings:
+      type: object
+      properties:
+        guildId: { type: string }
+        prefix: { type: string }
+        language: { type: string, enum: [ar, en] }
+        welcomeChannel: { type: string }
+        logsChannel: { type: string }
+        ticketCategory: { type: string }
+
+    Member:
+      type: object
+      properties:
+        userId: { type: string }
+        guildId: { type: string }
+        balance: { type: number }
+        bank: { type: number }
+        xp: { type: number }
+        level: { type: number }
+        badges: { type: array, items: { type: object } }
+
+    AutoResponder:
+      type: object
+      properties:
+        trigger: { type: string }
+        response: { type: string }
+        exact: { type: boolean }
+
+    Streamer:
+      type: object
+      properties:
+        name: { type: string }
+        username: { type: string }
+        platform: { type: string, enum: [youtube, twitch, tiktok] }
+
+    Giveaway:
+      type: object
+      properties:
+        _id: { type: string }
+        prize: { type: string }
+        winners: { type: number }
+        endAt: { type: string, format: date-time }
+        entries: { type: array, items: { type: string } }
+        hostId: { type: string }
+        hostTag: { type: string }
+
+    Warning:
+      type: object
+      properties:
+        userId: { type: string }
+        reason: { type: string }
+        moderatorId: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        message: { type: string }
+
+tags:
+  - name: Bot Control
+    description: Internal bot commands from dashboard
+  - name: Bot Status
+    description: Bot health and stats
+  - name: Guild Settings
+    description: Per-guild configuration management
+  - name: Members
+    description: Member economy and leveling
+  - name: Moderation
+    description: Warnings and moderation logs
+  - name: Giveaways
+    description: Giveaway management
+  - name: Auto-Responder
+    description: Auto-reply trigger management
+  - name: Notifications
+    description: Streamer notification management
+  - name: Shop
+    description: Server economy shop
+  - name: Reaction Roles
+    description: Role assignment via reactions
+  - name: Webhooks
+    description: Inbound event webhooks
 
 paths:
+
+  # ─────────────────────────────────────────────
+  # BOT CONTROL & HEALTH
+  # ─────────────────────────────────────────────
+
   /control:
     post:
-      summary: Discord Bot Control Endpoint
-      description: This endpoint runs on the discord-bot server and receives secure commands from the Dashboard.
-      security:
-        - BotSecret: []
+      tags: [Bot Control]
+      summary: Send command to bot (runs on bot server port 8080)
+      security: [{ BotSecret: [] }]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required: [type, guildId]
               properties:
                 type:
                   type: string
                   enum: [CONFIG_UPDATE, SHUTDOWN]
-                  description: The action for the bot to take
-                guildId:
-                  type: string
-                  description: The Discord Guild ID
-              required:
-                - type
-                - guildId
+                guildId: { type: string }
+      responses:
+        '200': { description: Command processed }
+        '401': { description: Invalid x-bot-secret }
+        '400': { description: Missing required fields }
+
+  /api/bot/health:
+    get:
+      tags: [Bot Status]
+      summary: Check if bot is online and responsive
       responses:
         '200':
-          description: Command successfully processed
-        '401':
-          description: Unauthorized - Invalid x-bot-secret
-        '400':
-          description: Bad Request - Missing required payload fields
+          description: Bot health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  online: { type: boolean }
+                  ping: { type: number }
+                  uptime: { type: string }
+
+  /api/bot/status:
+    get:
+      tags: [Bot Status]
+      summary: Get detailed bot status (guilds, users, memory)
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Bot status object }
+        '401': { description: Unauthorized }
 
   /api/bot/sync:
     post:
-      summary: Dashboard Bot Sync Endpoint
-      description: This endpoint triggers the bot to download the latest firestore configurations. Used by admins from the dashboard.
+      tags: [Bot Control]
+      summary: Trigger bot to reload Firestore configuration
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Sync signal sent }
+        '401': { description: Unauthorized }
+        '429': { description: Rate limited }
+
+  /api/bot/stats:
+    get:
+      tags: [Bot Status]
+      summary: Global bot statistics
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Bot stats }
+
+  # ─────────────────────────────────────────────
+  # GUILDS
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds:
+    get:
+      tags: [Guild Settings]
+      summary: List all guilds the bot is in
+      security: [{ SessionCookie: [] }]
       responses:
         '200':
-          description: Sync signal successfully sent to bot.
-        '401':
-          description: Unauthorized (Admin session required)
-        '429':
-          description: Rate limited (Max 60 requests per minute)
+          description: Array of guild objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    name: { type: string }
+                    icon: { type: string }
+                    memberCount: { type: number }
 
-  /api/webhooks/discord:
+  /api/bot/guilds/{guildId}/settings:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Guild Settings]
+      summary: Get guild settings
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GuildSettings' }
+    patch:
+      tags: [Guild Settings]
+      summary: Update guild settings
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GuildSettings' }
+      responses:
+        '200': { description: Settings updated }
+
+  /api/bot/guilds/{guildId}/stats:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Guild Settings]
+      summary: Get per-guild statistics
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Guild stats }
+
+  # ─────────────────────────────────────────────
+  # MEMBERS
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/members:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Members]
+      summary: List all members with their economy/level data
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Member' }
+
+  /api/bot/guilds/{guildId}/members/{userId}:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+      - name: userId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Members]
+      summary: Get single member data
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+    patch:
+      tags: [Members]
+      summary: Update member data (balance, xp, level)
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Member' }
+      responses:
+        '200': { description: Member updated }
+
+  /api/bot/guilds/{guildId}/members/{userId}/badges:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+      - name: userId
+        in: path
+        required: true
+        schema: { type: string }
     post:
-      summary: Outbound Webhook Receiver
-      description: The endpoint on the dashboard to receive Discord bot stats, stream starts, and stream end events.
-      security:
-        - BearerAuth: []
+      tags: [Members]
+      summary: Award badge to member
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, emoji]
+              properties:
+                name: { type: string }
+                emoji: { type: string }
+      responses:
+        '200': { description: Badge awarded }
+
+  /api/bot/guilds/{guildId}/economy:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Members]
+      summary: Get economy leaderboard
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Economy leaderboard }
+
+  # ─────────────────────────────────────────────
+  # MODERATION
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/warnings:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Moderation]
+      summary: List all warnings for a guild
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Warning' }
+    post:
+      tags: [Moderation]
+      summary: Add a warning
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Warning' }
+      responses:
+        '201': { description: Warning added }
+
+  /api/bot/guilds/{guildId}/logs:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Moderation]
+      summary: Get moderation logs for guild
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Logs array }
+
+  # ─────────────────────────────────────────────
+  # GIVEAWAYS
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/giveaways:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Giveaways]
+      summary: List active giveaways
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Giveaway' }
+
+  # ─────────────────────────────────────────────
+  # AUTO-RESPONDER
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/auto-responder:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Auto-Responder]
+      summary: List all auto-responders
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AutoResponder' }
+    post:
+      tags: [Auto-Responder]
+      summary: Create a new auto-responder
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AutoResponder' }
+      responses:
+        '201': { description: Auto-responder created }
+    delete:
+      tags: [Auto-Responder]
+      summary: Delete auto-responder by trigger
+      security: [{ SessionCookie: [] }]
+      parameters:
+        - name: trigger
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Deleted }
+
+  # ─────────────────────────────────────────────
+  # STREAMER NOTIFICATIONS
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/notifications:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Notifications]
+      summary: List streamer notifications
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Streamer' }
+    post:
+      tags: [Notifications]
+      summary: Add streamer to watch list
+      security: [{ SessionCookie: [] }]
       requestBody:
         required: true
         content:
@@ -82,15 +481,264 @@ paths:
             schema:
               type: object
               properties:
+                streamer: { $ref: '#/components/schemas/Streamer' }
+      responses:
+        '201': { description: Streamer added }
+    delete:
+      tags: [Notifications]
+      summary: Remove streamer notification
+      security: [{ SessionCookie: [] }]
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema: { type: string }
+        - name: platform
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Deleted }
+
+  # ─────────────────────────────────────────────
+  # SHOP
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/shop:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Shop]
+      summary: List all shop items
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Shop items array }
+    post:
+      tags: [Shop]
+      summary: Add item to shop
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, price]
+              properties:
+                name: { type: string }
+                price: { type: number }
+                description: { type: string }
+                roleId: { type: string }
+      responses:
+        '201': { description: Item added }
+
+  # ─────────────────────────────────────────────
+  # REACTION ROLES
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/reaction-roles:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Reaction Roles]
+      summary: List reaction role configurations
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Reaction roles array }
+    post:
+      tags: [Reaction Roles]
+      summary: Add reaction role
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, emoji, roleId]
+              properties:
+                messageId: { type: string }
+                emoji: { type: string }
+                roleId: { type: string }
+      responses:
+        '201': { description: Reaction role added }
+
+  # ─────────────────────────────────────────────
+  # BACKUPS
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/backups:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Guild Settings]
+      summary: List saved guild config backups
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Backups list }
+    post:
+      tags: [Guild Settings]
+      summary: Create a new backup
+      security: [{ SessionCookie: [] }]
+      responses:
+        '201': { description: Backup created }
+
+  # ─────────────────────────────────────────────
+  # EMBED BUILDER
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/embed:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Guild Settings]
+      summary: Send custom embed to a channel
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channelId, title]
+              properties:
+                channelId: { type: string }
+                title: { type: string }
+                description: { type: string }
+                color: { type: string }
+                image: { type: string }
+      responses:
+        '200': { description: Embed sent }
+
+  # ─────────────────────────────────────────────
+  # RULES
+  # ─────────────────────────────────────────────
+
+  /api/bot/guilds/{guildId}/rules:
+    parameters:
+      - name: guildId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Guild Settings]
+      summary: Get guild rules
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Rules list }
+    put:
+      tags: [Guild Settings]
+      summary: Update guild rules
+      security: [{ SessionCookie: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rules: { type: array, items: { type: string } }
+      responses:
+        '200': { description: Rules updated }
+
+  # ─────────────────────────────────────────────
+  # WEBHOOKS (Inbound)
+  # ─────────────────────────────────────────────
+
+  /api/webhooks/discord:
+    post:
+      tags: [Webhooks]
+      summary: Receive events from Discord bot (stream start/end, stats)
+      security: [{ BotSecret: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event, data]
+              properties:
                 event:
                   type: string
                   enum: [stream_start, stream_end, server_stats, activity]
-                data:
-                  type: object
-              required:
-                - event
+                data: { type: object }
+      responses:
+        '200': { description: Event captured }
+        '400': { description: Invalid payload }
+
+  /api/discord-stats:
+    get:
+      tags: [Bot Status]
+      summary: Public Discord server stats (member count, online count)
       responses:
         '200':
-          description: Webhook payload captured
-        '400':
-          description: Invalid payload structure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memberCount: { type: number }
+                  onlineCount: { type: number }
+                  boostLevel: { type: number }
+
+  /api/streamers/check-live:
+    get:
+      tags: [Notifications]
+      summary: Check if a streamer is currently live
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema: { type: string }
+        - name: platform
+          in: query
+          required: true
+          schema: { type: string, enum: [youtube, twitch, tiktok] }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isLive: { type: boolean }
+                  streamTitle: { type: string }
+                  viewerCount: { type: number }
+
+  /api/alliance-requests:
+    get:
+      tags: [Guild Settings]
+      summary: List alliance/partnership requests
+      security: [{ SessionCookie: [] }]
+      responses:
+        '200': { description: Requests list }
+    post:
+      tags: [Guild Settings]
+      summary: Submit a new alliance request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [guildId, message]
+              properties:
+                guildId: { type: string }
+                message: { type: string }
+      responses:
+        '201': { description: Request submitted }
+
+  /api/alliance-requests/public:
+    get:
+      tags: [Guild Settings]
+      summary: Get public alliance info (no auth)
+      responses:
+        '200': { description: Public alliance data }

@@ -8,6 +8,7 @@ import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Bot, Server, Users, Activity, TrendingUp, TrendingDown, 
   Clock, CheckCircle, AlertCircle, Download, RefreshCw,
@@ -75,14 +76,19 @@ const serviceData = [
 const COLORS = ['#5865F2', '#EB459E', '#57F287', '#FFD700', '#ED4245'];
 
 export default function BotStatsPage() {
-  const [stats, setStats] = useState(mockStats);
-  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<typeof mockStats | null>(null);
+  const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  useEffect(() => {
+    refreshStats();
+  }, []);
 
   const refreshStats = async () => {
     setLoading(true);
-    // محاكاة تحديث البيانات
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // محاكاة تحديث واسترجاع البيانات من الخادم
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setStats(mockStats);
     setLastUpdate(new Date());
     setLoading(false);
   };
@@ -125,8 +131,26 @@ export default function BotStatsPage() {
         </div>
       </motion.div>
 
-      {/* Bot Status Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {!stats ? (
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="glass-card h-[120px] flex justify-center flex-col">
+                <CardHeader className="pb-2"><Skeleton className="h-4 w-1/2 bg-primary/10" /></CardHeader>
+                <CardContent><Skeleton className="h-8 w-1/3 mb-2 bg-primary/20" /><Skeleton className="h-3 w-1/4 bg-primary/10" /></CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card className="glass-card"><CardHeader><Skeleton className="h-6 w-1/4 mb-2 bg-primary/10" /><Skeleton className="h-4 w-1/3 bg-primary/10" /></CardHeader><CardContent><Skeleton className="h-[100px] w-full bg-primary/5" /></CardContent></Card>
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="glass-card"><CardHeader><Skeleton className="h-6 w-1/3 mb-2 bg-primary/10" /><Skeleton className="h-4 w-1/2 bg-primary/10" /></CardHeader><CardContent><Skeleton className="h-[300px] w-full bg-primary/5" /></CardContent></Card>
+            <Card className="glass-card"><CardHeader><Skeleton className="h-6 w-1/3 mb-2 bg-primary/10" /><Skeleton className="h-4 w-1/2 bg-primary/10" /></CardHeader><CardContent><Skeleton className="h-[300px] w-full bg-primary/5" /></CardContent></Card>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Bot Status Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -429,6 +453,8 @@ export default function BotStatsPage() {
           آخر تحديث: {lastUpdate.toLocaleString('ar-SA')}
         </div>
       </motion.div>
+        </>
+      )}
     </div>
   );
 }

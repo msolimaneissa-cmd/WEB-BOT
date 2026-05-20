@@ -9,6 +9,21 @@
 - تحديث مكتبة `mongoose` إلى الإصدار `^8.9.5`.
 - تحسين أداء استجابة الأوامر عبر تقليل زمن الوصول للبيانات المتكررة.
 
+## [2.3.0] - 2026-05-10
+### Added (Dashboard — familylegends)
+- **Live Bot Status Indicator** في Admin Header — مؤشر حي لحالة البوت مبني على Firebase Realtime Database.
+- **Confirmation Dialogs** عند حذف Auto-Responders والـ Streamers في إعدادات البوت (Radix UI Dialog).
+- **Skeleton Loaders** في صفحة الإحصائيات لتجربة تحميل احترافية.
+- **Empty State** محسّن لصفحة الهبات (Giveaways) مع أيقونة وزر CTA.
+- **Error Boundaries** شاملة: صفحة خطأ عالمية (`/error`), صفحة خطأ خاصة بالداشبورد (`/admin/error`), وصفحة 404 مخصصة.
+- **Desktop Sidebar** ثابت دائمًا مع Off-Canvas Drawer للموبايل يعمل بشكل صحيح.
+- **Horizontal Scroll** لجداول البيانات مع `min-w-[640px]` و `overflow-x-auto`.
+- تحسين رسالة خطأ Login بإضافة loading state لزر Discord.
+- تعزيز زر CTA في Hero Section ليكون فعالًا دائمًا حتى قبل تحميل Firebase.
+
+### Added (Docs & API)
+- **openapi.yaml v2.0** — توثيق شامل لـ 35+ endpoint تغطي جميع مسارات الـ API الحقيقية في اللوحة.
+
 ## [2.2.0] - 2026-05-09
 ### Added
 - إضافة Database Fallback عند تعطل MongoDB وقت الإقلاع مع دعم `FALLBACK_MONGODB_URI`.

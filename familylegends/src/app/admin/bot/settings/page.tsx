@@ -161,6 +161,11 @@ export default function GuildDetailPage() {
   const [newBadgeEmoji, setNewBadgeEmoji] = useState('⭐');
   const [awardingBadge, setAwardingBadge] = useState(false);
 
+  // Deletion Dialogs States
+  const [deleteResponderState, setDeleteResponderState] = useState<{ open: boolean; trigger: string }>({ open: false, trigger: '' });
+  const [deleteStreamerState, setDeleteStreamerState] = useState<{ open: boolean; username: string; platform: string }>({ open: false, username: '', platform: '' });
+  const [deletingElement, setDeletingElement] = useState(false);
+
   // State: Modules Sub-states
   const [newTrigger, setNewTrigger] = useState('');
   const [newResponse, setNewResponse] = useState('');
@@ -375,11 +380,19 @@ export default function GuildDetailPage() {
     finally { setAddingResponder(false); }
   };
 
-  const handleDeleteResponder = async (trigger: string) => {
+  const confirmDeleteResponder = (trigger: string) => setDeleteResponderState({ open: true, trigger });
+  const executeDeleteResponder = async () => {
+    const trigger = deleteResponderState.trigger;
+    setDeletingElement(true);
     try {
       const res = await fetch(`/api/bot/guilds/${guildId}/auto-responder?trigger=${encodeURIComponent(trigger)}`, { method: 'DELETE' });
-      if (res.ok) { toast({ title: 'تم الحذف', description: 'تم حذف الرد التلقائي' }); fetchData(); }
+      if (res.ok) { 
+        toast({ title: 'تم الحذف', description: 'تم حذف الرد التلقائي بنجاح' }); 
+        setDeleteResponderState({ open: false, trigger: '' });
+        fetchData(); 
+      }
     } catch { toast({ variant: 'destructive', title: 'خطأ', description: 'فشل في الحذف' }); }
+    finally { setDeletingElement(false); }
   };
 
   const handleAddStreamer = async () => {
@@ -396,11 +409,19 @@ export default function GuildDetailPage() {
     finally { setAddingStreamer(false); }
   };
 
-  const handleDeleteStreamer = async (username: string, platform: string) => {
+  const confirmDeleteStreamer = (username: string, platform: string) => setDeleteStreamerState({ open: true, username, platform });
+  const executeDeleteStreamer = async () => {
+    const { username, platform } = deleteStreamerState;
+    setDeletingElement(true);
     try {
       const res = await fetch(`/api/bot/guilds/${guildId}/notifications?username=${username}&platform=${platform}`, { method: 'DELETE' });
-      if (res.ok) { fetchData(); }
+      if (res.ok) { 
+        toast({ title: 'تم الحذف', description: 'تم حذف إشعار الستريمر بنجاح' });
+        setDeleteStreamerState({ open: false, username: '', platform: '' });
+        fetchData(); 
+      }
     } catch { toast({ variant: 'destructive', title: 'خطأ', description: 'فشل في الحذف' }); }
+    finally { setDeletingElement(false); }
   };
 
   const handleSendEmbed = async () => {
@@ -643,7 +664,7 @@ export default function GuildDetailPage() {
             responders={responders} newTrigger={newTrigger} setNewTrigger={setNewTrigger}
             newResponse={newResponse} setNewResponse={setNewResponse}
             newExact={newExact} setNewExact={setNewExact}
-            handleAddResponder={handleAddResponder} handleDeleteResponder={handleDeleteResponder}
+            handleAddResponder={handleAddResponder} handleDeleteResponder={confirmDeleteResponder}
             addingResponder={addingResponder}
           />
         </TabsContent>
@@ -653,7 +674,7 @@ export default function GuildDetailPage() {
             streamers={streamers} newStreamerName={newStreamerName} setNewStreamerName={setNewStreamerName}
             newStreamerUsername={newStreamerUsername} setNewStreamerUsername={setNewStreamerUsername}
             newStreamerPlatform={newStreamerPlatform} setNewStreamerPlatform={setNewStreamerPlatform}
-            handleAddStreamer={handleAddStreamer} handleDeleteStreamer={handleDeleteStreamer}
+            handleAddStreamer={handleAddStreamer} handleDeleteStreamer={confirmDeleteStreamer}
             addingStreamer={addingStreamer} streamDetection={streamDetection}
             setStreamDetection={setStreamDetection} saveStreamDetection={saveStreamDetection}
             settings={settings} updateField={updateField} saveSettings={saveSettings}
@@ -767,6 +788,51 @@ export default function GuildDetailPage() {
             <div className="space-y-2"><Label>الرمز (Emoji)</Label><Input value={newBadgeEmoji} onChange={(e) => setNewBadgeEmoji(e.target.value)} /></div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setIsBadgesDialogOpen(false)}>إلغاء</Button><Button onClick={handleAwardBadge} disabled={awardingBadge}>{awardingBadge ? <Loader2 className="h-4 w-4 animate-spin" /> : 'منح الوسام'}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* ──────────────────────────────────────────────
+          Confirmation Dialogs (Destructive)
+      ────────────────────────────────────────────── */}
+      <Dialog open={deleteResponderState.open} onOpenChange={(open) => !open && setDeleteResponderState(p => ({ ...p, open: false }))}>
+        <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <Trash2 className="h-5 w-5" /> تأكيد الحذف
+            </DialogTitle>
+            <DialogDescription className="text-right mt-3 text-base">
+              هل أنت متأكد من رغبتك في حذف الرد التلقائي: <strong className="text-foreground">"{deleteResponderState.trigger}"</strong>؟
+              هذا الإجراء لا يمكن التراجع عنه.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteResponderState(p => ({ ...p, open: false }))} disabled={deletingElement}>إلغاء</Button>
+            <Button variant="destructive" onClick={executeDeleteResponder} disabled={deletingElement}>
+              {deletingElement ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Trash2 className="h-4 w-4 ml-2" />}
+              تأكيد الحذف
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteStreamerState.open} onOpenChange={(open) => !open && setDeleteStreamerState(p => ({ ...p, open: false }))}>
+        <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <Trash2 className="h-5 w-5" /> تأكيد الحذف
+            </DialogTitle>
+            <DialogDescription className="text-right mt-3 text-base">
+              هل أنت متأكد من رغبتك في حذف إشعارات الستريمر: <strong className="text-foreground">"{deleteStreamerState.username}"</strong>؟
+              سيتوقف البوت عن إرسال إشعارات البث الخاصة به.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteStreamerState(p => ({ ...p, open: false }))} disabled={deletingElement}>إلغاء</Button>
+            <Button variant="destructive" onClick={executeDeleteStreamer} disabled={deletingElement}>
+              {deletingElement ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Trash2 className="h-4 w-4 ml-2" />}
+              تأكيد الحذف
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

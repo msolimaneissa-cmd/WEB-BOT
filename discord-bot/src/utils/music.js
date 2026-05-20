@@ -38,7 +38,7 @@ async function quickYouTubeSearch(query) {
     try {
         const result = await ytSearch(query);
         const video = result.videos?.[0];
-        
+
         if (video) {
             return {
                 url: video.url,
@@ -109,9 +109,7 @@ function setupDistube(client) {
             new SoundCloudPlugin(),
         ],
         emitNewSongOnly: true,
-        leaveOnEmpty: true,
         leaveOnStop: true,
-        emptyCooldown: 60,
         savePreviousSongs: true,
         searchSongs: 0, // نستخدم yt-search بدلاً من البحث المدمج
         searchCooldown: 10,
@@ -129,7 +127,7 @@ function setupDistube(client) {
                 { name: '📊 المركز في القائمة', value: `${queue.songs.length - 1} أغنية متبقية`, inline: true }
             )
             .setThumbnail(song.thumbnail);
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
     });
 
     /** عند إضافة أغنية للقائمة */
@@ -140,7 +138,7 @@ function setupDistube(client) {
                 { name: '📊 المركز', value: `#${queue.songs.length - 1}`, inline: true },
                 { name: '👤 طلب بواسطة', value: `${song.user}`, inline: true }
             );
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
     });
 
     /** عند إضافة قائمة تشغيل */
@@ -151,7 +149,7 @@ function setupDistube(client) {
                 { name: '⏱️ المدة الإجمالية', value: playlist.formattedDuration || 'غير متاح', inline: true },
                 { name: '👤 طلب بواسطة', value: `${playlist.user}`, inline: true }
             );
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
     });
 
     /** عند تهيئة قائمة الانتظار */
@@ -190,36 +188,36 @@ function setupDistube(client) {
     client.distube.on("finish", (queue) => {
         if (queue.autoplay) {
             const embed = createInfoEmbed('🔄 التشغيل التلقائي', 'جاري البحث عن أغاني مشابهة...');
-            queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+            queue.textChannel.send({ embeds: [embed] }).catch(() => { });
         } else {
             const embed = createInfoEmbed('📋 انتهت القائمة', 'لا توجد أغاني أخرى في القائمة.\nاستخدم `/موسيقى مغادرة` لطلب المغادرة.');
-            queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+            queue.textChannel.send({ embeds: [embed] }).catch(() => { });
         }
     });
 
     /** عند عدم وجود نتائج مشابهة */
     client.distube.on("noRelated", (queue) => {
         const embed = createInfoEmbed('⚠️ التشغيل التلقائي', 'لم يتم العثور على أغاني مشابهة.');
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
         queue.stop();
     });
 
     /** عند انضمام البوت لقناة الصوت */
     client.distube.on("connect", (queue) => {
         const embed = createInfoEmbed('🔗 تم الاتصال', `تم الاتصال بقناة الصوت **${queue.voiceChannel.name}**.`);
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
     });
 
     /** عند فتح قناة الصوت بدون أعضاء */
     client.distube.on("empty", (queue) => {
         const embed = createInfoEmbed('🗣️ قناة الصوت فاضية', 'قناة الصوت فارغة. جاري المغادرة خلال 60 ثانية...');
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
     });
 
     /** عند قطع الاتصال */
     client.distube.on("disconnect", (queue) => {
         const embed = createInfoEmbed('🔌 تم الانفصال', 'تم الانفصال من قناة الصوت.');
-        queue.textChannel.send({ embeds: [embed] }).catch(() => {});
+        queue.textChannel.send({ embeds: [embed] }).catch(() => { });
         logger.info('تم قطع الاتصال من القناة الصوتية');
     });
 
@@ -231,7 +229,7 @@ function setupDistube(client) {
 
         if (channel && channel.send) {
             const embed = createErrorEmbed('❌ خطأ في الموسيقى', errorMessage);
-            channel.send({ embeds: [embed] }).catch(() => {});
+            channel.send({ embeds: [embed] }).catch(() => { });
         }
     });
 
@@ -315,7 +313,7 @@ async function smartPlay(client, voiceChannel, textChannel, member, query) {
         // إذا كان رابط، حاول تشغيله مباشرة
         if (isURL(query)) {
             const urlType = detectURLType(query);
-            
+
             // روابط سبوتيفاي وساوندكلاود تعمل بشكل أفضل
             if (urlType === 'spotify' || urlType === 'soundcloud') {
                 await client.distube.play(voiceChannel, query, {
@@ -324,7 +322,7 @@ async function smartPlay(client, voiceChannel, textChannel, member, query) {
                 });
                 return { success: true, message: 'جاري التشغيل...' };
             }
-            
+
             // روابط يوتيوب - حاول مباشرة
             try {
                 await client.distube.play(voiceChannel, query, {
@@ -335,44 +333,44 @@ async function smartPlay(client, voiceChannel, textChannel, member, query) {
             } catch (ytError) {
                 // إذا فشل يوتيوب، حاول البحث عن الأغنية
                 logger.warn('فشل يوتيوب، جاري البحث البديل:', ytError.message);
-                
+
                 const searchResult = await quickYouTubeSearch(query);
                 if (searchResult) {
                     // استخرج اسم الأغنية من الرابط وابحث عنه
-                    return { 
-                        success: false, 
+                    return {
+                        success: false,
                         message: '⚠️ يوتيوب محجوب حالياً. جرب استخدام سبوتيفاي أو ساوندكلاود.',
-                        needsSearch: true 
+                        needsSearch: true
                     };
                 }
             }
         }
-        
+
         // إذا لم يكن رابط، ابحث عنه
         const searchResult = await quickYouTubeSearch(query);
-        
+
         if (searchResult) {
             try {
                 await client.distube.play(voiceChannel, searchResult.url, {
                     textChannel,
                     member,
                 });
-                return { 
-                    success: true, 
+                return {
+                    success: true,
                     message: `🎵 تم العثور على: **${searchResult.title}**`,
-                    song: searchResult 
+                    song: searchResult
                 };
             } catch (playError) {
                 // إذا فشل التشغيل، أرجع معلومات للبحث
                 logger.warn('فشل تشغيل نتيجة البحث:', playError.message);
-                return { 
-                    success: false, 
+                return {
+                    success: false,
                     message: '⚠️ يوتيوب محجوب حالياً.\n💡 **جرب:** اكتب اسم الأغنية مع "spotify" أو "soundcloud"',
-                    needsSearch: true 
+                    needsSearch: true
                 };
             }
         }
-        
+
         // محاولة أخيرة مع DisTube search
         try {
             await client.distube.play(voiceChannel, query, {
@@ -381,26 +379,26 @@ async function smartPlay(client, voiceChannel, textChannel, member, query) {
             });
             return { success: true, message: 'جاري البحث والتشغيل...' };
         } catch (finalError) {
-            return { 
-                success: false, 
-                message: `❌ لم أتمكن من العثور على الأغنية.\n💡 **نصائح:**\n• تأكد من كتابة اسم الأغنية بشكل صحيح\n• جرب إضافة اسم الفنان\n• استخدم رابط من سبوتيفاي أو ساوندكلاود` 
+            return {
+                success: false,
+                message: `❌ لم أتمكن من العثور على الأغنية.\n💡 **نصائح:**\n• تأكد من كتابة اسم الأغنية بشكل صحيح\n• جرب إضافة اسم الفنان\n• استخدم رابط من سبوتيفاي أو ساوندكلاود`
             };
         }
     } catch (error) {
         logger.error('خطأ في smartPlay:', error.message);
-        return { 
-            success: false, 
-            message: getErrorMessage(error) 
+        return {
+            success: false,
+            message: getErrorMessage(error)
         };
     }
 }
 
-module.exports = { 
-    setupDistube, 
-    FILTERS_MAP, 
-    quickYouTubeSearch, 
-    isURL, 
+module.exports = {
+    setupDistube,
+    FILTERS_MAP,
+    quickYouTubeSearch,
+    isURL,
     detectURLType,
     getErrorMessage,
-    smartPlay 
+    smartPlay
 };

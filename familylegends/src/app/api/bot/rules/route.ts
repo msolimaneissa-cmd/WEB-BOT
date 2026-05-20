@@ -4,7 +4,8 @@
  * @methods GET, POST, DELETE
  * @access Protected (requires admin authentication)
  * @description Handles CRUD operations for guild-specific moderation rules
- *import { NextRequest, NextResponse } from 'next/server';
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { connectBotDB } from '@/lib/bot-mongodb';
 import { RuleModel } from '@/lib/bot-schemas';
@@ -12,7 +13,7 @@ import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { withTiming } from '@/lib/api-timing';
 
 // GET: Fetch rules for a specific guild
-$functionHeader`nasync function handleGET(
+async function handleGET(
   request: NextRequest
 ) {
   try {
@@ -63,10 +64,7 @@ async function handlePOST(
   }
 }
 
-// PUT: Update rules order or bulk update (Optional for now, we'll use individual updates if needed)
-// For simplicity, let's keep POST/DELETE and a single PUT for individual rule edit if we need it.
-// Or we can use a single DELETE?
-
+// DELETE: Delete a rule
 async function handleDELETE(
   request: NextRequest
 ) {
@@ -95,5 +93,3 @@ async function handleDELETE(
 export const GET = withTiming(handleGET, 'bot-rules/GET');
 export const POST = withTiming(handlePOST, 'bot-rules/POST');
 export const DELETE = withTiming(handleDELETE, 'bot-rules/DELETE');
-
-

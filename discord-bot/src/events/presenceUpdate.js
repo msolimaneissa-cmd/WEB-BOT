@@ -66,7 +66,7 @@ module.exports = {
     async execute(oldPresence, newPresence, client) {
         // ─── بوابة الأمان (Security Gate) ───
         if (!newPresence.guild || newPresence.guild.id !== config.mainGuildId) return;
-        
+
         // تجاهل الأعضاء بدون سيرفر أو البوتات
         if (!newPresence.member || newPresence.member.user.bot) return;
 

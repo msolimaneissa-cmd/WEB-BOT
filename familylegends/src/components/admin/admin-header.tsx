@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from "@/firebase";
+import { useAuth, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
+import { doc } from 'firebase/firestore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,10 @@ interface AdminHeaderProps {
   className?: string;
 }
 
+interface BotStats {
+  online?: boolean;
+}
+
 export function AdminHeader({ onMenuToggle, className }: AdminHeaderProps) {
   const t = useTranslations('Admin');
   const tc = useTranslations('Common');
@@ -45,8 +50,17 @@ export function AdminHeader({ onMenuToggle, className }: AdminHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+
+  // Firestore Bot Stats sync
+  const statsDocRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, 'settings', 'discord-stats') : null),
+    [firestore]
+  );
+  const { data: statsData } = useDoc<BotStats>(statsDocRef, false);
+  const isOnline = (statsData as BotStats | null)?.online ?? false;
 
   const handleLogout = async () => {
     if (confirm(tc('confirmLogout'))) {
@@ -136,6 +150,20 @@ export function AdminHeader({ onMenuToggle, className }: AdminHeaderProps) {
 
         {/* Right Section: Quick Actions + User Menu */}
         <div className="flex items-center gap-3">
+          {/* Bot Live Indicator */}
+          <div 
+            className={cn(
+              "hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300",
+              isOnline ? "border-green-500/30 bg-green-500/10" : "border-red-500/30 bg-red-500/10"
+            )}
+            title={isOnline ? "Bot is Online" : "Bot is Offline"}
+          >
+            <span className={cn("w-2 h-2 rounded-full", isOnline ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500")} />
+            <span className={cn("text-xs font-bold tracking-wide", isOnline ? "text-green-400" : "text-red-400")}>
+              {isOnline ? "متصل (أونلاين)" : "غير متصل (أوفلاين)"}
+            </span>
+          </div>
+
           <div className="hidden sm:flex items-center gap-1 border-r border-white/10 pr-3 ml-3">
             <Button
               variant="ghost"

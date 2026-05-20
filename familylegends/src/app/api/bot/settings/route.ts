@@ -4,7 +4,8 @@
  * @methods GET, PUT
  * @access Protected (requires admin authentication)
  * @description Handles fetching and updating guild-specific bot configuration settings
- *import { NextRequest, NextResponse } from 'next/server';
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { connectBotDB } from '@/lib/bot-mongodb';
 import { GuildModel } from '@/lib/bot-schemas';
@@ -320,4 +321,3 @@ async function handlePUT(request: NextRequest) {
 
 export const GET = withTiming(handleGET, 'bot-settings/GET');
 export const PUT = withTiming(handlePUT, 'bot-settings/PUT');
-

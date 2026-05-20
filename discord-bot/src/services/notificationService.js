@@ -50,7 +50,7 @@ async function checkStreamStatus(client) {
     try {
         const guilds = await Guild.find({ 'website.streamDetection.enabled': true });
         const currentLive = [];
-        
+
         for (const guildConfig of guilds) {
             const discordGuild = client.guilds.cache.get(guildConfig.guildId);
             if (!discordGuild) continue;

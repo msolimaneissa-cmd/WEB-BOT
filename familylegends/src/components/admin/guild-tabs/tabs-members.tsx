@@ -68,16 +68,16 @@ export const TabsMembers: React.FC<TabsMembersProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border border-white/5 overflow-hidden">
-            <Table>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="min-w-[640px]">
               <TableHeader className="bg-white/5">
                 <TableRow>
-                  <TableHead className="text-right">العضو</TableHead>
-                  <TableHead className="text-right">الاقتصاد</TableHead>
-                  <TableHead className="text-right">المستوى</TableHead>
-                  <TableHead className="text-right">الأوسمة</TableHead>
-                  <TableHead className="text-left">إجراءات</TableHead>
+                  <TableHead className="text-right w-32">العضو</TableHead>
+                  <TableHead className="text-right w-36">الاقتصاد</TableHead>
+                  <TableHead className="text-right w-28">المستوى</TableHead>
+                  <TableHead className="text-right w-40">الأوسمة</TableHead>
+                  <TableHead className="text-left w-28">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -120,8 +120,11 @@ export const TabsMembers: React.FC<TabsMembersProps> = ({
                 ))}
                 {filteredMembers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-20 text-muted-foreground">
-                      لا يوجد أعضاء مطابقين للبحث
+                    <TableCell colSpan={5} className="text-center py-16">
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                        <Users className="w-10 h-10 opacity-20" />
+                        <p className="text-sm">{searchQuery ? 'لا يوجد أعضاء مطابقين لكلمة البحث' : 'لا يوجد أعضاء حتى الآن'}</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}

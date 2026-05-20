@@ -106,8 +106,8 @@
 ### 🚩 Milestone 4: DevOps & Documentation (الأتمتة والتوثيق)
 - **الهدف**: أتمتة دورة الحياة وتوفير مرجع للمطورين.
 - **المهام**:
-  - [ ] إنشاء GitHub Action لفحص الكود (Linting / Testing) التلقائي.
-  - [ ] إنشاء ملف Swagger/OpenAPI لتوثيق كل API endpoints الخاصة بالتواصل بين البوت واللوحة.
+  - [x] إنشاء GitHub Action لفحص الكود (Linting / Testing) التلقائي.
+  - [x] إنشاء ملف Swagger/OpenAPI لتوثيق كل API endpoints الخاصة بالتواصل بين البوت واللوحة.
 
 ---
 

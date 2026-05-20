@@ -239,178 +239,175 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen flex bg-background text-foreground" dir="rtl">
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            variants={overlayVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      <motion.aside
-        variants={sidebarVariants}
-        initial={false}
-        animate={sidebarOpen ? 'visible' : 'hidden'}
-        className={cn(
-          'fixed top-0 right-0 z-50 h-full w-[260px] bg-card/80 backdrop-blur-xl border-l border-white/10 flex flex-col',
-          'md:translate-x-0 md:relative md:block'
-        )}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-white/5">
+      {/* Desktop sidebar — always visible */}
+      <aside className="hidden md:flex w-[260px] flex-shrink-0 flex-col bg-card/80 backdrop-blur-xl border-l border-white/10 min-h-screen sticky top-0">
+        <div className="flex items-center gap-3 p-4 border-b border-white/5">
           <Link href="/admin" className="flex items-center gap-3 group">
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden"
-            >
-              <Image
-                src={LOGO_URL}
-                alt="Logo"
-                width={32}
-                height={32}
-                className="rounded object-cover"
-                priority
-              />
-            </motion.div>
+            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
+              <Image src={LOGO_URL} alt="Logo" width={32} height={32} className="rounded object-cover" priority />
+            </div>
             <div>
               <h1 className="font-bold text-lg text-gradient-gold">لوحة القيادة</h1>
               <p className="text-[10px] text-muted-foreground">نظام الإدارة المتقدم</p>
             </div>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden h-8 w-8 hover:bg-white/10"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
-
         <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
           {sidebarSections.map((section, sectionIndex) => (
             <div key={section.title}>
-              <motion.h3 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: sectionIndex * 0.1 }}
-                className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-3 px-3"
-              >
-                {section.title}
-              </motion.h3>
+              <h3 className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-3 px-3">{section.title}</h3>
               <div className="space-y-1">
-                {section.links.map((link, linkIndex) => {
-                  const isActive = link.exact
-                    ? pathname === link.href
-                    : pathname === link.href || pathname.startsWith(link.href + '/');
+                {section.links.map((link) => {
+                  const isActive = link.exact ? pathname === link.href : pathname === link.href || pathname.startsWith(link.href + '/');
                   const Icon = link.icon;
-                  const itemIndex = sectionIndex * 10 + linkIndex;
-
                   return (
-                    <motion.div
-                      key={link.href}
-                      custom={itemIndex}
-                      variants={navItemVariants}
-                      initial="initial"
-                      animate="animate"
-                      whileHover="hover"
+                    <Link key={link.href} href={link.href}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden',
+                        isActive ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'
+                      )}
                     >
-                      <Link
-                        href={link.href}
-                        className={cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden',
-                          isActive
-                            ? 'bg-primary/10 text-primary border border-primary/20'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'
-                        )}
-                      >
-                        {isActive && (
-                          <motion.div
-                            layoutId="activeIndicator"
-                            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full"
-                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                          />
-                        )}
-                        
-                        <Icon className={cn('h-4 w-4 transition-colors', isActive && 'text-primary')} />
-                        <span className="relative z-10">{link.label}</span>
-                        
-                        {isActive && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="mr-auto"
-                          >
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
-                          </motion.div>
-                        )}
-                      </Link>
-                    </motion.div>
+                      {isActive && <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full" />}
+                      <Icon className={cn('h-4 w-4', isActive && 'text-primary')} />
+                      <span>{link.label}</span>
+                      {isActive && <div className="mr-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,215,0,0.5)]" />}
+                    </Link>
                   );
                 })}
               </div>
             </div>
           ))}
         </nav>
-
         <Separator className="bg-white/5" />
-
         <div className="p-3 space-y-3">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="p-3 rounded-xl bg-white/5 border border-white/5"
-          >
+          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border-2 border-primary/20">
                 <AvatarImage src={session.user?.image || ''} alt={session.user?.name || 'User'} />
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {session.user?.name?.charAt(0) || <User className="h-4 w-4" />}
-                </AvatarFallback>
+                <AvatarFallback className="bg-primary/10 text-primary">{session.user?.name?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {session.user?.name || 'المستخدم'}
-                </p>
-                <Badge 
-                  variant="secondary" 
-                  className="mt-1 text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0"
-                >
-                  <Crown className="h-2.5 w-2.5 ml-1" />
-                  مدير
+                <p className="text-sm font-medium text-foreground truncate">{session.user?.name || 'المستخدم'}</p>
+                <Badge variant="secondary" className="mt-1 text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0">
+                  <Crown className="h-2.5 w-2.5 ml-1" />مدير
                 </Badge>
               </div>
             </div>
-          </motion.div>
-
+          </div>
           <div className="space-y-1">
-            <Link href="/">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground h-10 text-sm"
-              >
-                <Home className="h-4 w-4" />
-                <span>الموقع الرئيسي</span>
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 text-destructive/80 hover:text-destructive hover:bg-destructive/10 h-10 text-sm"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              <span>تسجيل الخروج</span>
-            </Button>
+            <Link href="/"><Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground h-10 text-sm"><Home className="h-4 w-4" /><span>الموقع الرئيسي</span></Button></Link>
+            <Button variant="ghost" className="w-full justify-start gap-3 text-destructive/80 hover:text-destructive hover:bg-destructive/10 h-10 text-sm" onClick={handleLogout}><LogOut className="h-4 w-4" /><span>تسجيل الخروج</span></Button>
           </div>
         </div>
-      </motion.aside>
+      </aside>
+
+      {/* Mobile sidebar — slide-in off-canvas */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              variants={overlayVariants} initial="hidden" animate="visible" exit="exit"
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              variants={sidebarVariants} initial="hidden" animate="visible" exit="exit"
+              className="fixed top-0 right-0 z-50 h-full w-[260px] bg-card/95 backdrop-blur-xl border-l border-white/10 flex flex-col md:hidden"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-white/5">
+                <Link href="/admin" className="flex items-center gap-3 group">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden"
+                  >
+                    <Image src={LOGO_URL} alt="Logo" width={32} height={32} className="rounded object-cover" priority />
+                  </motion.div>
+                  <div>
+                    <h1 className="font-bold text-lg text-gradient-gold">لوحة القيادة</h1>
+                    <p className="text-[10px] text-muted-foreground">نظام الإدارة المتقدم</p>
+                  </div>
+                </Link>
+                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setSidebarOpen(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <nav className="flex-1 p-3 space-y-6 overflow-y-auto">
+                {sidebarSections.map((section, sectionIndex) => (
+                  <div key={section.title}>
+                    <motion.h3
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: sectionIndex * 0.1 }}
+                      className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-wider mb-3 px-3"
+                    >
+                      {section.title}
+                    </motion.h3>
+                    <div className="space-y-1">
+                      {section.links.map((link, linkIndex) => {
+                        const isActive = link.exact
+                          ? pathname === link.href
+                          : pathname === link.href || pathname.startsWith(link.href + '/');
+                        const Icon = link.icon;
+                        const itemIndex = sectionIndex * 10 + linkIndex;
+                        return (
+                          <motion.div key={link.href} custom={itemIndex} variants={navItemVariants} initial="initial" animate="animate" whileHover="hover">
+                            <Link
+                              href={link.href}
+                              className={cn(
+                                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden',
+                                isActive
+                                  ? 'bg-primary/10 text-primary border border-primary/20'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'
+                              )}
+                            >
+                              {isActive && (
+                                <motion.div layoutId="mobileActiveIndicator" className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full" transition={{ type: 'spring', stiffness: 300, damping: 30 }} />
+                              )}
+                              <Icon className={cn('h-4 w-4 transition-colors', isActive && 'text-primary')} />
+                              <span className="relative z-10">{link.label}</span>
+                              {isActive && (
+                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mr-auto">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                                </motion.div>
+                              )}
+                            </Link>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+
+              <Separator className="bg-white/5" />
+
+              <div className="p-3 space-y-3">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-3 rounded-xl bg-white/5 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                      <AvatarImage src={session.user?.image || ''} alt={session.user?.name || 'User'} />
+                      <AvatarFallback className="bg-primary/10 text-primary">{session.user?.name?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{session.user?.name || 'المستخدم'}</p>
+                      <Badge variant="secondary" className="mt-1 text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0">
+                        <Crown className="h-2.5 w-2.5 ml-1" />مدير
+                      </Badge>
+                    </div>
+                  </div>
+                </motion.div>
+                <div className="space-y-1">
+                  <Link href="/"><Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground h-10 text-sm"><Home className="h-4 w-4" /><span>الموقع الرئيسي</span></Button></Link>
+                  <Button variant="ghost" className="w-full justify-start gap-3 text-destructive/80 hover:text-destructive hover:bg-destructive/10 h-10 text-sm" onClick={handleLogout}><LogOut className="h-4 w-4" /><span>تسجيل الخروج</span></Button>
+                </div>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         <header className="sticky top-0 z-30 h-16 glass border-b border-white/5 flex items-center px-4 md:px-6 gap-4">

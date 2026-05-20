@@ -88,11 +88,18 @@ export const TabsGiveaways: React.FC<TabsGiveawaysProps> = ({
                 </div>
               ))}
               {giveaways.length === 0 && (
-                <div className="col-span-full text-center py-20 text-muted-foreground text-sm border border-dashed rounded-xl bg-white/5 border-white/10">
-                  <div className="flex flex-col items-center gap-3">
-                    <Trophy className="h-10 w-10 opacity-10" />
-                    <p>لا توجد هبات نشطة حالياً. يمكنك إنشاؤها عبر البوت باستخدام أمر <code className="bg-white/10 px-1.5 py-0.5 rounded text-primary">/هبة بدء</code></p>
+                <div className="col-span-full flex flex-col items-center justify-center py-20 text-muted-foreground bg-white/5 rounded-2xl border border-white/10 border-dashed transition-all hover:bg-white/10">
+                  <div className="w-24 h-24 bg-yellow-500/10 rounded-full flex items-center justify-center mb-4 relative drop-shadow-lg">
+                    <div className="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping opacity-20" />
+                    <Trophy className="h-10 w-10 text-yellow-500/60" />
                   </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">لا توجد هبات نشطة</h3>
+                  <p className="text-sm text-center max-w-sm mb-6 leading-relaxed">
+                    لا توجد مسابقات أو سحوبات مفعلة حالياً. يمكنك تفعيل مسابقة جديدة لتنشيط السيرفر وجذب الأعضاء عبر استخدام أمر <code className="bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded mx-1">/هبة بدء</code>
+                  </p>
+                  <Button variant="outline" className="gap-2 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10" disabled>
+                    <Plus className="h-4 w-4" /> إنشاء هبة سريعة (قريباً)
+                  </Button>
                 </div>
               )}
             </div>
