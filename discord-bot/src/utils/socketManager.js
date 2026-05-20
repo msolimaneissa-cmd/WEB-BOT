@@ -17,7 +17,7 @@ let io;
 function initSocket(server) {
     io = new Server(server, {
         cors: {
-            origin: process.env.DASHBOARD_URL || "http://localhost:3000",
+            origin: process.env.DASHBOARD_URL || "http://localhost:9002",
             methods: ["GET", "POST"],
             credentials: true
         }

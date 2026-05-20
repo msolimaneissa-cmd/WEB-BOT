@@ -131,7 +131,7 @@ function createRateLimiter({ windowMs, max }) {
 }
 
 // 🛡️ Middleware: CORS & Body Parser
-const allowedOrigin = process.env.DASHBOARD_URL || "http://localhost:3000";
+const allowedOrigin = process.env.DASHBOARD_URL || "http://localhost:9002";
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
@@ -170,18 +170,6 @@ app.get('/status', createRateLimiter({ windowMs: 60_000, max: 30 }), (req, res) 
     if (!configuredSecret) {
         return res.status(503).json({ success: false, message: 'Not configured' });
     }
-    const secret = req.headers['x-bot-secret'] || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
-    // Use timing-safe comparison to prevent timing attacks
-    try {
-        const secretBuf = Buffer.from(String(secret));
-        const configBuf = Buffer.from(String(configuredSecret));
-        if (secretBuf.length !== configBuf.length || !require('crypto').timingSafeEqual(secretBuf, configBuf)) {
-            return res.status(401).json({ success: false, message: 'Unauthorized' });
-        }
-    } catch {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-
     const memoryUsage = process.memoryUsage();
     const uptime = process.uptime();
 
@@ -282,9 +270,9 @@ app.post('/control', controlRateLimiter, async (req, res) => {
     }
     const secret = req.headers['x-bot-secret'] || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
 
-    // التحقق من السر (Secret) للأمان — timing-safe comparison
+    // Use timing-safe comparison to prevent timing attacks
     try {
-        const secretBuf = Buffer.from(String(secret));
+        const secretBuf = Buffer.from(String(secret || ''));
         const configBuf = Buffer.from(String(configuredSecret));
         if (secretBuf.length !== configBuf.length || !require('crypto').timingSafeEqual(secretBuf, configBuf)) {
             return res.status(401).json({ success: false, message: 'Unauthorized: Invalid secret' });
